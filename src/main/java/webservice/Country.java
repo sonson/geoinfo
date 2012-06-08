@@ -9,6 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import webservice.model.CountryName;
+import webservice.model.Indicators;
 import webservice.model.LatLng;
 
 import com.google.common.cache.CacheBuilder;
@@ -20,6 +21,8 @@ import com.sun.jersey.api.client.WebResource;
 @Path("/country")
 public class Country {
 
+	private static final String GEONAMES_USERNAME = "sonson";
+	
 	/** Cache for the country names. */
 	private final LoadingCache<LatLng, String> namesCache = CacheBuilder.newBuilder()
 			.maximumSize(1000)
@@ -32,37 +35,68 @@ public class Country {
 						}
 
 					});
+
+	/** Returns a country name from the coordinates. */
+	private String latLngToCountryName(final LatLng latLng) {		
+		Client  client = Client.create();
+		WebResource webResource = client.resource("http://api.geonames.org/");
+		
+		System.out.print("Try to find country name for " + latLng + "...");
+		String isoCode = webResource.path("countryCode").
+				queryParam("lat", latLng.getLat()) . 
+				queryParam("lng", latLng.getLng()) .
+				queryParam("username", GEONAMES_USERNAME) .
+				get(String.class);
+		System.out.println(" found " + isoCode);
+		
+		// Remove the newline from the ISO-Code:
+		isoCode = isoCode.replaceAll("\r\n", "");
+		
+		return isoCode;
+	}
 	
 	@GET
 	@Path("/{lat}/{lng}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public CountryName name(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
-		double latNumber = Double.parseDouble(lat);
-		double lngNumber = Double.parseDouble(lat);
-		LatLng latLng = new LatLng(latNumber, lngNumber);
+		LatLng latLng = new LatLng(lat, lng);
+		CountryName result = new CountryName();
 		try {
 			String name = namesCache.get(latLng);
-			CountryName result = new CountryName();
 			result.setName(name);
-			return result;
 		} catch (ExecutionException e) {
-			System.err.println("Error getting name of " + latLng);
-			e.printStackTrace();
+			result.setError(e.getMessage());
 		}
-		
-		return null;
+
+		return result;
 	}
 
-	/** Returns a country name from the coordinates. */
-	private String latLngToCountryName(final LatLng key) {
-		System.out.println("Try to find country name for " + key);
+	@GET
+	@Path("/{lat}/{lng}/indicators")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Indicators indicators(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
+		LatLng latLng = new LatLng(lat, lng);
+		Indicators result = new Indicators();
 		
+		try {
+			String name = namesCache.get(latLng);
+			retrieveIndicatorsFromWorldbank(name, result);
+		} catch (ExecutionException e) {
+			
+		}
+		return result;
+	}
+
+	private void retrieveIndicatorsFromWorldbank(final String country, final Indicators result) {
 		Client  client = Client.create();
-		WebResource webResource = client.resource("");
-		webResource.path("ID").get(String.class);
+		WebResource webResource = client.resource("http://api.worldbank.org/");
 		
-		return null;
+		System.out.print("Try to find indicators for " + country + "...");
+		String indi = webResource.path("countries/" + country + "/indicators/SP.DYN.CBRT.IN").
+				queryParam("date", "2010"). 
+				get(String.class);
+		System.out.println(" found " + indi);
 	}
-	
 
+	
 }
