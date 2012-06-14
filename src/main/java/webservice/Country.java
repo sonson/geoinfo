@@ -6,6 +6,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 
 import webservice.model.CountryName;
@@ -22,7 +23,7 @@ import com.sun.jersey.api.client.WebResource;
 public class Country {
 
 	private static final String GEONAMES_USERNAME = "sonson";
-	
+		
 	/** Cache for the country names. */
 	private final LoadingCache<LatLng, String> namesCache = CacheBuilder.newBuilder()
 			.maximumSize(1000)
@@ -58,7 +59,7 @@ public class Country {
 	@GET
 	@Path("/{lat}/{lng}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public CountryName name(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
+	public GenericEntity<CountryName> name(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
 		LatLng latLng = new LatLng(lat, lng);
 		CountryName result = new CountryName();
 		try {
@@ -68,7 +69,7 @@ public class Country {
 			result.setError(e.getMessage());
 		}
 
-		return result;
+		return new GenericEntity<CountryName>(result) {};
 	}
 
 	@GET
