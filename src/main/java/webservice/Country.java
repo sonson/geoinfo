@@ -1,5 +1,6 @@
 package webservice;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import javax.ws.rs.GET;
@@ -8,6 +9,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import webservice.model.CountryName;
 import webservice.model.Indicators;
@@ -23,7 +28,9 @@ import com.sun.jersey.api.client.WebResource;
 public class Country {
 
 	private static final String GEONAMES_USERNAME = "sonson";
-		
+
+	private final ObjectMapper mapper = new ObjectMapper(); // Jackson JSON Parser
+
 	/** Cache for the country names. */
 	private final LoadingCache<LatLng, String> namesCache = CacheBuilder.newBuilder()
 			.maximumSize(1000)
@@ -81,23 +88,46 @@ public class Country {
 		
 		try {
 			String name = namesCache.get(latLng);
-			retrieveIndicatorsFromWorldbank(name, result);
-		} catch (ExecutionException e) {
-			
+			setIndicatorsFromWorldbank(name, result);
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
 		}
 		return result;
 	}
 
-	private void retrieveIndicatorsFromWorldbank(final String country, final Indicators result) {
+	/** Sets the values of the result-Indicator-object with data from the Worldbank. */
+	private void setIndicatorsFromWorldbank(final String country, final Indicators result) 
+			throws JsonProcessingException, IOException 
+	{
+		result.setBirthRate(retrieveIndicatorFromWorldbank(country, "SP.DYN.CBRT.IN"));
+		result.setDeathRate(retrieveIndicatorFromWorldbank(country, "SP.DYN.CDRT.IN"));
+		result.setLifeExpectancyFemale(retrieveIndicatorFromWorldbank(country, "SP.DYN.LE00.FE.IN"));
+		result.setLifeExpectancyMale(retrieveIndicatorFromWorldbank(country, "SP.DYN.LE00.MA.IN"));		
+	}
+
+	/** Retrieves the value of an indicator from the Worldbank API.
+	 *  
+	 * @throws IOException 
+	 * @throws JsonProcessingException */
+	private String retrieveIndicatorFromWorldbank(final String country, final String indicatorName) 
+			throws JsonProcessingException, IOException {
 		Client  client = Client.create();
 		WebResource webResource = client.resource("http://api.worldbank.org/");
 		
-		System.out.print("Try to find indicators for " + country + "...");
-		String indi = webResource.path("countries/" + country + "/indicators/SP.DYN.CBRT.IN").
-				queryParam("date", "2010"). 
+		System.out.println("Try to find Indicator " + indicatorName + " for country " + country + "...");
+		String json = webResource.path("countries/" + country + 
+				"/indicators/" + indicatorName) .
+				queryParam("format", "json") .
+				queryParam("date", "2010") . 
 				get(String.class);
-		System.out.println(" found " + indi);
+		return getValueFromWorldbankJson(json);
 	}
-
 	
+	/** Parse the JSON from the worldbank and returns just the value as String. */
+	private String getValueFromWorldbankJson(final String json) throws JsonProcessingException, IOException {
+		JsonNode root = mapper.readTree(json);
+		JsonNode data = root.get(1).get(0);
+		JsonNode value = data.get("value");
+		return value.asText();
+	}
 }

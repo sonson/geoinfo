@@ -25,21 +25,71 @@
 
 <body onload="init()">
 
-    <div style="width: 35%; height: 100%; float:left;">
-        <div id="map_canvas"></div>
-    </div>
+<div style="width: 35%; height: 100%; float:left;">
+    <div id="map_canvas"></div>
+</div>
 
 <div class="container">
 <div class="row">
 
-    <div class="span7">
+    <div class="span8">
 
         <div class="hero-unit">
-            <h1>GeoInfo</h1>
+            <h1 id="name">GeoInfo</h1>
             <p>To start, click on a country on the map on the left side.</p>
         </div>
         
-        <h2 id="name"></h2>
+        <div class="alert" id="working">
+			I try to receive data about the country - please wait...        
+        </div>
+        
+        <div id="data">
+        <h2>Weather</h2>
+        
+        <div id="weather">Sunny and warm.</div>
+        
+		<h2>Indicators</h2>
+        
+        <table class="table table-striped">
+  			<thead>
+    			<tr>
+      				<th>Title</th>
+      				<th>Value</th>
+      				<th>Description</th>
+    			</tr>
+  			</thead>
+  			<tbody>
+  			
+    			<tr>
+      				<td>Birth rate</td>
+      				<td id="birthRate"></td>
+      				<td>Birth rate, crude (per 1,000 people)</td>
+      			</tr>
+      			
+      			<tr>
+      				<td>Death rate</td>
+      				<td id="deathRate"></td>
+      				<td>Death rate, crude (per 1,000 people)</td>
+      			</tr>
+      			
+      			<tr>
+      				<td>Life expectancy Female</td>
+      				<td id="lifeExpectancyFemale"></td>
+      				<td>Life expectancy at birth, female (years)</td>
+      			</tr>
+      			
+      			<tr>
+      				<td>Life expectancy  Male</td>
+      				<td id="lifeExpectancyMale"></td>
+      				<td>Life expectancy at birth, male (years)</td>
+      			</tr>
+      			
+      			
+      			
+		  </tbody>
+		</table>
+        
+    </div>
     </div>
 
     </div>
