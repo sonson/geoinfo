@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class CountryName {
 
 	private String name;
+	private String iso;
 	private String error;
 	
 	/**
@@ -36,15 +37,30 @@ public class CountryName {
 	public void setError(final String error) {
 		this.error = error;
 	}
-	
+
+	/**
+	 * @return the iso
+	 */
+	public String getIso() {
+		return iso;
+	}
+
+	/**
+	 * @param iso the iso to set
+	 */
+	public void setIso(final String iso) {
+		this.iso = iso;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "CountryName [name=" + name + ", error=" + error + "]";
+		return "CountryName [name=" + name + ", iso=" + iso + ", error="
+				+ error + "]";
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -53,10 +69,11 @@ public class CountryName {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((error == null) ? 0 : error.hashCode());
+		result = prime * result + ((iso == null) ? 0 : iso.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -73,6 +90,11 @@ public class CountryName {
 			if (other.error != null)
 				return false;
 		} else if (!error.equals(other.error))
+			return false;
+		if (iso == null) {
+			if (other.iso != null)
+				return false;
+		} else if (!iso.equals(other.iso))
 			return false;
 		if (name == null) {
 			if (other.name != null)

@@ -17,6 +17,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import webservice.model.CountryName;
 import webservice.model.Indicators;
 import webservice.model.LatLng;
+import webservice.weather.GlobalWeatherClient;
+import webservice.weather.WeatherService;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -32,35 +34,41 @@ public class Country {
 	private final ObjectMapper mapper = new ObjectMapper(); // Jackson JSON Parser
 
 	/** Cache for the country names. */
-	private final LoadingCache<LatLng, String> namesCache = CacheBuilder.newBuilder()
+	private final LoadingCache<LatLng, CountryName> namesCache = CacheBuilder.newBuilder()
 			.maximumSize(1000)
 			.build(
-					new CacheLoader<LatLng, String>() {
+					new CacheLoader<LatLng, CountryName>() {
 
 						@Override
-						public String load(final LatLng key) throws Exception {
+						public CountryName load(final LatLng key) throws Exception {
 							return latLngToCountryName(key);
 						}
 
 					});
 
 	/** Returns a country name from the coordinates. */
-	private String latLngToCountryName(final LatLng latLng) {		
+	private CountryName latLngToCountryName(final LatLng latLng) {		
 		Client  client = Client.create();
 		WebResource webResource = client.resource("http://api.geonames.org/");
 		
 		System.out.print("Try to find country name for " + latLng + "...");
-		String isoCode = webResource.path("countryCode").
+		String json = webResource.path("countrySubdivisionJSON").
 				queryParam("lat", latLng.getLat()) . 
 				queryParam("lng", latLng.getLng()) .
 				queryParam("username", GEONAMES_USERNAME) .
 				get(String.class);
-		System.out.println(" found " + isoCode);
 		
-		// Remove the newline from the ISO-Code:
-		isoCode = isoCode.replaceAll("\r\n", "");
+		CountryName result = new CountryName();
+		try {
+			JsonNode root = mapper.readTree(json);
+			result.setName(root.get("countryName").asText());
+			result.setIso(root.get("countryCode").asText());
+			System.out.println(" found: " + result);
+		} catch (Exception e) {
+			System.err.println("JSON error: " + e.getMessage());
+		}
 		
-		return isoCode;
+		return result;
 	}
 	
 	@GET
@@ -70,13 +78,30 @@ public class Country {
 		LatLng latLng = new LatLng(lat, lng);
 		CountryName result = new CountryName();
 		try {
-			String name = namesCache.get(latLng);
+			String name = namesCache.get(latLng).getName();
 			result.setName(name);
 		} catch (ExecutionException e) {
 			result.setError(e.getMessage());
 		}
 
 		return new GenericEntity<CountryName>(result) {};
+	}
+
+	@GET
+	@Path("/{lat}/{lng}/weather")
+	@Produces(MediaType.TEXT_PLAIN) // APPLICATION_XML)
+	public String weather(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {		
+		LatLng latLng = new LatLng(lat, lng);
+		WeatherService service = new GlobalWeatherClient();
+		String result = "Weather error.";
+		
+		try {
+			String name = namesCache.get(latLng).getName();
+			result = service.getCityWeatherForCountry(name);
+		} catch (Exception e) {
+			System.out.println("Weather Error: " + e.getMessage());
+		}
+		return result;
 	}
 
 	@GET
@@ -87,10 +112,10 @@ public class Country {
 		Indicators result = new Indicators();
 		
 		try {
-			String name = namesCache.get(latLng);
-			setIndicatorsFromWorldbank(name, result);
+			String iso = namesCache.get(latLng).getIso();
+			setIndicatorsFromWorldbank(iso, result);
 		} catch (Exception e) {
-			System.out.println("Error: " + e.getMessage());
+			System.out.println("Error Indicator: " + e.getMessage());
 		}
 		return result;
 	}

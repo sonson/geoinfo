@@ -23,13 +23,15 @@ function init() {
     $("#working").fadeIn();
 
     var url = "http://localhost:9998/country/" + event.latLng.lat() + "/" + event.latLng.lng();
+    setWeather(url);
+    
     var request = $.ajax({
             url: url,
             dataType: 'xml',
         })
         .done(function(xml) {
         	var name = $(xml).find("name").text();
-        	$("#name").html("Country " + name);
+        	$("#name").html("About " + name);
         })
         .fail(function(jqXHR, textStatus) {
             alert("Request failed: " + textStatus);
@@ -58,11 +60,27 @@ function init() {
     })
     .fail(function(jqXHR, textStatus) {
         alert("Request2 failed: " + textStatus);
-    }
-);
-    
-    
+    });
   });
 }
+
+/** Sets the weather information. */
+function setWeather(baseUrl) {
+    var request = $.ajax({
+            url: baseUrl + "/weather",
+            dataType: 'xml',
+        })
+        .done(function(xml) {
+        	var wind = $(xml).find("wind").text();
+        	$("wind").html(wind);
+        	
+        })
+        .fail(function(jqXHR, textStatus) {
+            alert("Weather request failed: " + textStatus);
+        }
+    );
+
+}
+
 
 

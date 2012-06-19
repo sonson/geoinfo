@@ -36,6 +36,38 @@
 			<version>1.9.7</version>
 		</dependency>
 		
+	<!-- Apache axis stuff -->	
+	<dependency>
+		<groupId>javax.xml</groupId>
+		<artifactId>jaxrpc-api</artifactId>
+		<version>1.1</version>
+	</dependency>
+
+ <dependency> 
+  <groupId>org.apache.axis</groupId> 
+  <artifactId>axis</artifactId> 
+  <version>1.4</version> 
+  <scope>compile</scope> 
+</dependency> 
+<dependency> 
+  <groupId>org.apache.axis</groupId> 
+  <artifactId>axis-jaxrpc</artifactId> 
+  <version>1.4</version> 
+  <scope>compile</scope> 
+</dependency> 
+<dependency> 
+  <groupId>commons-discovery</groupId> 
+  <artifactId>commons-discovery</artifactId> 
+  <version>0.4</version> 
+  <scope>compile</scope> 
+</dependency> 
+<dependency> 
+  <groupId>wsdl4j</groupId> 
+  <artifactId>wsdl4j</artifactId> 
+  <version>1.6.2</version> 
+  <scope>compile</scope> 
+</dependency> 
+
 	</dependencies>
 
 </project>

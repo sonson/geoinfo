@@ -28,7 +28,7 @@ public class Server {
 	 */
 	public static void main(final String[] args) throws IllegalArgumentException, NullPointerException, IOException {
 		HttpServer httpServer = startServer();
-		System.out.println("Server started. Try http://localhost:9998/country");
+		System.out.println("Server started. Try http://localhost:9998/page/index.html");
 		System.in.read();
 		httpServer.stop();
 		System.out.println("Server stopped.");
