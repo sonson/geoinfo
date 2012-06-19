@@ -97,7 +97,9 @@ public class Country {
 		
 		try {
 			String name = namesCache.get(latLng).getName();
+			System.out.print("Try to find weather for " + name);
 			result = service.getCityWeatherForCountry(name);
+			System.out.println(". Weather found.");
 		} catch (Exception e) {
 			System.out.println("Weather Error: " + e.getMessage());
 		}
