@@ -71,9 +71,23 @@ function setWeather(baseUrl) {
             dataType: 'xml',
         })
         .done(function(xml) {
-        	var wind = $(xml).find("wind").text();
-        	$("wind").html(wind);
+        	var wind = $(xml).find("Wind").text();
+        	$("#Wind").html(wind);
         	
+        	var skyConditions = $(xml).find("SkyConditions").text();
+        	$("#SkyConditions").html(skyConditions);
+        	
+        	var temperature = $(xml).find("Temperature").text();
+        	$("#Temperature").html(temperature);
+
+        	var dewPoint = $(xml).find("Dew point").text();
+        	$("#DewPoint").html(dewPoint);
+        	
+        	var relativeHumidity = $(xml).find("RelativeHumidity").text();
+        	$("#RelativeHumidity").html(relativeHumidity);
+        	
+        	var pressure = $(xml).find("Pressure").text();
+        	$("#Pressure").html(pressure);
         })
         .fail(function(jqXHR, textStatus) {
             alert("Weather request failed: " + textStatus);

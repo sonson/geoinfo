@@ -89,7 +89,7 @@ public class Country {
 
 	@GET
 	@Path("/{lat}/{lng}/weather")
-	@Produces(MediaType.TEXT_PLAIN) // APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_XML)
 	public String weather(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {		
 		LatLng latLng = new LatLng(lat, lng);
 		WeatherService service = new GlobalWeatherClient();
