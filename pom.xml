@@ -11,23 +11,23 @@
 			<artifactId>jersey-server</artifactId>
 			<version>1.12</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-grizzly2</artifactId>
 			<version>1.12</version>
 		</dependency>
-		
+
 		<dependency>
-    		<groupId>com.sun.jersey</groupId>
-    		<artifactId>jersey-client</artifactId>
-    		<version>1.12</version>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.12</version>
 		</dependency>
-		
+
 		<dependency>
-    		<groupId>com.google.guava</groupId>
-    		<artifactId>guava</artifactId>
-    		<version>12.0</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>12.0</version>
 		</dependency>
 
 		<dependency>
@@ -35,45 +35,58 @@
 			<artifactId>jackson-jaxrs</artifactId>
 			<version>1.9.7</version>
 		</dependency>
-		
-	<!-- Apache axis stuff -->	
-	<dependency>
-		<groupId>javax.xml</groupId>
-		<artifactId>jaxrpc-api</artifactId>
-		<version>1.1</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>javax.activation</groupId>
-		<artifactId>activation</artifactId>
-		<version>1.1.1</version>
-	</dependency>
-            
- <dependency> 
-  <groupId>org.apache.axis</groupId> 
-  <artifactId>axis</artifactId> 
-  <version>1.4</version> 
-  <scope>compile</scope> 
-</dependency> 
-<dependency> 
-  <groupId>org.apache.axis</groupId> 
-  <artifactId>axis-jaxrpc</artifactId> 
-  <version>1.4</version> 
-  <scope>compile</scope> 
-</dependency> 
-<dependency> 
-  <groupId>commons-discovery</groupId> 
-  <artifactId>commons-discovery</artifactId> 
-  <version>0.4</version> 
-  <scope>compile</scope> 
-</dependency> 
-<dependency> 
-  <groupId>wsdl4j</groupId> 
-  <artifactId>wsdl4j</artifactId> 
-  <version>1.6.2</version> 
-  <scope>compile</scope> 
-</dependency> 
+
+		<!-- Apache axis stuff -->
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxrpc-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>axis-jaxrpc</artifactId>
+			<version>1.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-discovery</groupId>
+			<artifactId>commons-discovery</artifactId>
+			<version>0.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.6.2</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
+<build>
+ <plugins>
+ <plugin>
+ <groupId>org.apache.maven.plugins</groupId>
+ <artifactId>maven-compiler-plugin</artifactId>
+ <configuration>
+ <source>1.5</source>
+ <target>1.5</target>
+ </configuration>
+ </plugin>
+ </plugins>
+
+ </build>
 </project>

@@ -31,33 +31,32 @@ public class Country {
 
 	private static final String GEONAMES_USERNAME = "sonson";
 
-	private final ObjectMapper mapper = new ObjectMapper(); // Jackson JSON Parser
+	private final ObjectMapper mapper = new ObjectMapper(); // Jackson JSON
+															// Parser
 
 	/** Cache for the country names. */
-	private final LoadingCache<LatLng, CountryName> namesCache = CacheBuilder.newBuilder()
-			.maximumSize(1000)
-			.build(
-					new CacheLoader<LatLng, CountryName>() {
+	private final LoadingCache<LatLng, CountryName> namesCache = CacheBuilder
+			.newBuilder().maximumSize(1000)
+			.build(new CacheLoader<LatLng, CountryName>() {
 
-						@Override
-						public CountryName load(final LatLng key) throws Exception {
-							return latLngToCountryName(key);
-						}
+				@Override
+				public CountryName load(final LatLng key) throws Exception {
+					return latLngToCountryName(key);
+				}
 
-					});
+			});
 
 	/** Returns a country name from the coordinates. */
-	private CountryName latLngToCountryName(final LatLng latLng) {		
-		Client  client = Client.create();
+	private CountryName latLngToCountryName(final LatLng latLng) {
+		Client client = Client.create();
 		WebResource webResource = client.resource("http://api.geonames.org/");
-		
+
 		System.out.print("Try to find country name for " + latLng + "...");
-		String json = webResource.path("countrySubdivisionJSON").
-				queryParam("lat", latLng.getLat()) . 
-				queryParam("lng", latLng.getLng()) .
-				queryParam("username", GEONAMES_USERNAME) .
-				get(String.class);
-		
+		String json = webResource.path("countrySubdivisionJSON")
+				.queryParam("lat", latLng.getLat())
+				.queryParam("lng", latLng.getLng())
+				.queryParam("username", GEONAMES_USERNAME).get(String.class);
+
 		CountryName result = new CountryName();
 		try {
 			JsonNode root = mapper.readTree(json);
@@ -67,14 +66,15 @@ public class Country {
 		} catch (Exception e) {
 			System.err.println("JSON error: " + e.getMessage());
 		}
-		
+
 		return result;
 	}
-	
+
 	@GET
 	@Path("/{lat}/{lng}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public GenericEntity<CountryName> name(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	public GenericEntity<CountryName> name(@PathParam("lat") final String lat,
+			@PathParam("lng") final String lng) {
 		LatLng latLng = new LatLng(lat, lng);
 		CountryName result = new CountryName();
 		try {
@@ -84,17 +84,19 @@ public class Country {
 			result.setError(e.getMessage());
 		}
 
-		return new GenericEntity<CountryName>(result) {};
+		return new GenericEntity<CountryName>(result) {
+		};
 	}
 
 	@GET
 	@Path("/{lat}/{lng}/weather")
 	@Produces(MediaType.APPLICATION_XML)
-	public String weather(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {		
+	public String weather(@PathParam("lat") final String lat,
+			@PathParam("lng") final String lng) {
 		LatLng latLng = new LatLng(lat, lng);
 		WeatherService service = new GlobalWeatherClient();
 		String result = "Weather error.";
-		
+
 		try {
 			String name = namesCache.get(latLng).getName();
 			System.out.print("Try to find weather for " + name);
@@ -108,11 +110,12 @@ public class Country {
 
 	@GET
 	@Path("/{lat}/{lng}/indicators")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Indicators indicators(@PathParam("lat") final String lat, @PathParam("lng") final String lng) {
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+	public Indicators indicators(@PathParam("lat") final String lat,
+			@PathParam("lng") final String lng) {
 		LatLng latLng = new LatLng(lat, lng);
 		Indicators result = new Indicators();
-		
+
 		try {
 			String iso = namesCache.get(latLng).getIso();
 			setIndicatorsFromWorldbank(iso, result);
@@ -122,36 +125,47 @@ public class Country {
 		return result;
 	}
 
-	/** Sets the values of the result-Indicator-object with data from the Worldbank. */
-	private void setIndicatorsFromWorldbank(final String country, final Indicators result) 
-			throws JsonProcessingException, IOException 
-	{
-		result.setBirthRate(retrieveIndicatorFromWorldbank(country, "SP.DYN.CBRT.IN"));
-		result.setDeathRate(retrieveIndicatorFromWorldbank(country, "SP.DYN.CDRT.IN"));
-		result.setLifeExpectancyFemale(retrieveIndicatorFromWorldbank(country, "SP.DYN.LE00.FE.IN"));
-		result.setLifeExpectancyMale(retrieveIndicatorFromWorldbank(country, "SP.DYN.LE00.MA.IN"));		
+	/**
+	 * Sets the values of the result-Indicator-object with data from the
+	 * Worldbank.
+	 */
+	private void setIndicatorsFromWorldbank(final String country,
+			final Indicators result) throws JsonProcessingException,
+			IOException {
+		result.setBirthRate(retrieveIndicatorFromWorldbank(country,
+				"SP.DYN.CBRT.IN"));
+		result.setDeathRate(retrieveIndicatorFromWorldbank(country,
+				"SP.DYN.CDRT.IN"));
+		result.setLifeExpectancyFemale(retrieveIndicatorFromWorldbank(country,
+				"SP.DYN.LE00.FE.IN"));
+		result.setLifeExpectancyMale(retrieveIndicatorFromWorldbank(country,
+				"SP.DYN.LE00.MA.IN"));
 	}
 
-	/** Retrieves the value of an indicator from the Worldbank API.
-	 *  
-	 * @throws IOException 
-	 * @throws JsonProcessingException */
-	private String retrieveIndicatorFromWorldbank(final String country, final String indicatorName) 
-			throws JsonProcessingException, IOException {
-		Client  client = Client.create();
+	/**
+	 * Retrieves the value of an indicator from the Worldbank API.
+	 * 
+	 * @throws IOException
+	 * @throws JsonProcessingException
+	 */
+	private String retrieveIndicatorFromWorldbank(final String country,
+			final String indicatorName) throws JsonProcessingException,
+			IOException {
+		Client client = Client.create();
 		WebResource webResource = client.resource("http://api.worldbank.org/");
-		
-		System.out.println("Try to find Indicator " + indicatorName + " for country " + country + "...");
-		String json = webResource.path("countries/" + country + 
-				"/indicators/" + indicatorName) .
-				queryParam("format", "json") .
-				queryParam("date", "2010") . 
-				get(String.class);
+
+		System.out.println("Try to find Indicator " + indicatorName
+				+ " for country " + country + "...");
+		String json = webResource
+				.path("countries/" + country + "/indicators/" + indicatorName)
+				.queryParam("format", "json").queryParam("date", "2010")
+				.get(String.class);
 		return getValueFromWorldbankJson(json);
 	}
-	
+
 	/** Parse the JSON from the worldbank and returns just the value as String. */
-	private String getValueFromWorldbankJson(final String json) throws JsonProcessingException, IOException {
+	private String getValueFromWorldbankJson(final String json)
+			throws JsonProcessingException, IOException {
 		JsonNode root = mapper.readTree(json);
 		JsonNode data = root.get(1).get(0);
 		JsonNode value = data.get("value");

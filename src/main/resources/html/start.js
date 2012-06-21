@@ -2,6 +2,8 @@
 function init() {
   $("#data").hide();
   $("#working").hide();
+  $("#weatherNotAvailable").hide();
+  $("#weather").hide();
 	
   var latlng = new google.maps.LatLng(48.1, 14);
   var myOptions = {
@@ -21,7 +23,9 @@ function init() {
     marker.setPosition(event.latLng);
     $("#data").fadeOut();
     $("#working").fadeIn();
-
+    $("#weatherNotAvailable").fadeOut();
+    $("#weather").fadeOut();
+    
     var url = "http://localhost:9998/country/" + event.latLng.lat() + "/" + event.latLng.lng();
     setWeather(url);
     
@@ -59,7 +63,7 @@ function init() {
     	$("#data").fadeIn();
     })
     .fail(function(jqXHR, textStatus) {
-        alert("Request2 failed: " + textStatus);
+        alert("Indicator request failed: " + textStatus);
     });
   });
 }
@@ -88,9 +92,10 @@ function setWeather(baseUrl) {
         	
         	var pressure = $(xml).find("Pressure").text();
         	$("#Pressure").html(pressure);
+        	$("#weather").fadeIn();
         })
         .fail(function(jqXHR, textStatus) {
-            alert("Weather request failed: " + textStatus);
+            $("#weatherNotAvailable").fadeIn();
         }
     );
 
